@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.xortech.sender"
+    android:versionCode="20"
+    android:versionName="1" >
+
+    <uses-sdk
+        android:minSdkVersion="13"
+        android:targetSdkVersion="19" />
+    
+    <uses-feature
+    	android:glEsVersion="0x00020000"
+    	android:required="true"/>
+    
+    <permission
+    	android:name="com.xortech.sender.permission.MAPS_RECEIVE"
+    	android:protectionLevel="signature"/>
+    
+    <!-- Permissions -->
+	<uses-permission android:name="com.xortech.sender.permission.MAPS_RECEIVE"/>   
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	
+	<!-- Main Application --> 
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo" >
+        
+        <!-- Sender Main -->
+        <activity
+            android:name="com.xortech.sender.SenderMain"
+            android:label="@string/app_name" 
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Broadcast Receiver -->
+        <receiver android:name="com.xortech.sender.SmsReceiver" android:exported="true" > 
+			<intent-filter android:priority="2147483647" > 
+				<action android:name="android.provider.Telephony.SMS_RECEIVED" />
+	        </intent-filter> 
+		</receiver>
+		
+        <!-- Broadcast Receiver -->
+		<receiver android:name="com.xortech.sender.MyUpdateReceiver" >
+        	<intent-filter android:priority="1000" >
+            	<action android:name="android.intent.action.PACKAGE_ADDED"/>
+        		<action android:name="android.intent.action.PACKAGE_REPLACED"/>
+        		<action android:name="android.intent.action.PACKAGE_REMOVED"/>
+            	<data android:scheme="package"/>
+        	</intent-filter>
+        </receiver>
+		
+		<!-- Preferences -->
+        <activity 
+            android:name="com.xortech.sender.MyPreferences"
+			android:parentActivityName="com.xortech.sender.SenderMain" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" />
+        </activity>
+        
+        <!-- Google API Key -->
+        <meta-data
+    		android:name="com.google.android.maps.v2.API_KEY"
+    		android:value="AIzaSyCywDYQ22TGnu95wCwsi17tcZsys0cIwj0" />
+        
+        <!-- Main Add Tag -->
+        <activity 
+            android:name="com.xortech.multitag.TagAddMain"  
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName="com.xortech.sender.SenderMain" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" />        
+        </activity>
+        
+        <!-- Tag Update -->
+        <activity 
+            android:name="com.xortech.multitag.TagAddUpdate"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName="com.xortech.sender.SenderMain" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" />         
+        </activity>
+        
+        <!-- Map Activity -->
+        <activity             
+            android:name="com.xortech.map.SenderMap"
+			android:parentActivityName="com.xortech.sender.SenderMain" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" /> 
+        </activity>
+        
+        <!-- Panic Add Update Activity -->
+        <activity 
+            android:name="com.xortech.multipanic.PanicAddUpdate"
+			android:parentActivityName="com.xortech.sender.SenderMain" 
+			android:configChanges="orientation|screenSize" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" />
+        </activity>
+        
+        <!-- Panic Main -->
+        <activity 
+            android:name="com.xortech.multipanic.PanicAddMain"
+			android:parentActivityName="com.xortech.sender.SenderMain" 
+			android:configChanges="orientation|screenSize" >
+			<meta-data
+            	android:name="android.support.PARENT_ACTIVITY"
+            	android:value="com.xortech.sender.SenderMain" />
+        </activity>
+        
+        <!-- GPSTracker Service -->
+        <service 
+            android:name="com.xortech.map.GPSTracker">
+        </service>
+        
+        <meta-data
+    		android:name="com.google.android.gms.version"
+    		android:value="@integer/google_play_services_version" />
+        
+    </application>
+</manifest>

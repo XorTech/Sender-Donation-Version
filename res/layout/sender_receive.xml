@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout5"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sender_m"
+    android:orientation="vertical" >
+        
+    <LinearLayout
+        android:id="@+id/LinearLayout7"
+    	android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" >
+        	
+    	<Button
+        	android:id="@+id/deleteBtn"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:background="@drawable/blk_btn"
+            android:text="@string/deleteBtnTxt" />
+        	
+    	<Button
+            android:id="@+id/UpdateList"
+            style="@style/ButtonText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:background="@drawable/blk_btn"
+            android:text="@string/refreshBtnTxt" />     
+              	
+	</LinearLayout>  
+
+    <LinearLayout
+        android:id="@+id/LinearLayout3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+		android:layout_above="@+id/LinearLayout7" >
+    	
+        <Button
+        	android:id="@+id/getMapBtn"
+        	style="@style/ButtonText"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_weight="0.50"
+        	android:background="@drawable/blk_btn"
+        	android:text="@string/mapTxt" />
+        
+    	<Button
+        	android:id="@+id/getLocs"
+        	style="@style/ButtonText"
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:layout_weight="0.50"
+        	android:background="@drawable/blk_btn"
+        	android:text="@string/getLocsString" />
+    	  	
+	</LinearLayout>
+ 	
+   	<ListView
+        android:id="@+id/SMSList"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/LinearLayout3"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
+    
+</RelativeLayout>

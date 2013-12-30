@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/blank_bak"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:text="@string/myPanicNumbers"
+        android:textSize="30sp"
+        style="@style/ButtonText"
+        android:background="@drawable/blk_btn"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/add_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:textColor="@color/Black"
+        android:textSize="25sp"
+        android:background="@color/White"
+        android:hint="@string/tagNickname"
+        android:maxLength="20" />
+
+    <EditText
+        android:id="@+id/add_mobile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:textColor="@color/Black"
+        android:textSize="25sp"
+        android:background="@color/White"
+        android:hint="@string/mobileNumber"
+        android:inputType="phone"
+        android:maxLength="14" />
+
+    <LinearLayout
+        android:id="@+id/add_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:weightSum="2" >
+
+        <Button
+            android:id="@+id/add_save_btn"
+            style="@style/ButtonText"
+        	android:background="@drawable/blk_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="@string/addNewTag" />
+
+        <Button
+            android:id="@+id/add_view_all"
+            style="@style/ButtonText"
+        	android:background="@drawable/blk_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="@string/viewAllTags" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/update_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:weightSum="2" >
+
+        <Button
+            android:id="@+id/update_btn"
+            style="@style/ButtonText"
+        	android:background="@drawable/blk_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="@string/saveUpdates" />
+
+        <Button
+            android:id="@+id/update_view_all"
+            style="@style/ButtonText"
+        	android:background="@drawable/blk_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:text="@string/viewAllTags" />
+    </LinearLayout>
+
+</LinearLayout>

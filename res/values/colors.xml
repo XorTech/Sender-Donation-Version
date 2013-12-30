@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="StaticText">#F2E1AC</color>
+    <color name="DynamicText">#83FAEF</color>
+    <color name="White">#FFFFFF</color>
+    <color name="Black">#000000</color>
+</resources>
