@@ -10,7 +10,7 @@
 	<string name="return_number_summary">The phone number used to receive your messages</string>
 	<string name="secret_code_summary">The code used to authorize access to your location</string>
 	<string name="tag_id">TagID</string>
-	<string name="tag_id_summary">The name you want others to see when sending notifications</string>
+	<string name="tag_id_summary">The unique identifier assigned to this tag</string>
 	<string name="lock_code">Lock Code</string>
 	<string name="lock_code_summary">The code used to prevent changes to the settings</string>
 	<string name="default_lockcode">12345</string>
@@ -32,7 +32,7 @@
     	<item name="android:layout_height">wrap_content</item>
     	<item name="android:textColor">#ffffff</item>
     	<item name="android:gravity">center</item>
-    	<item name="android:layout_margin">3dp</item>
+    	<item name="android:layout_margin">1dp</item>
     	<item name="android:textSize">30sp</item>
     	<item name="android:textStyle">bold</item>
     	<item name="android:shadowColor">#000000</item>
@@ -58,9 +58,12 @@
 	<string name="tagManager">Tag Manager</string>
 	<string name="myPanicNumbers">Panic Manager</string>
 	<string name="mapTxt">Map</string>
-	<string name="xorTech">XOR TECH LTD</string>
-	<string name="senderVersion">Version 1.0</string>
-	<string name="disclaimer">Bug report information can be found on the Sender main page on the Google Play Store. Please visit our site http://sender.xor-tec.com for detailed instructions for using Sender. Unauthorized usage of this application is discouraged.</string>
-	<string name="phone_id">My Phone ID</string>
-	
+
+	<!-- Maps With Me strings -->
+	<string  name="mwm_should_be_installed">Offline maps are required to proceed. We have partnered with MapsWithMe to provide you with offline maps of the entire world.\nTo continue please download the app:</string>
+    <string  name="down_lite">Download MapsWithMe Lite (free)</string>
+    <string  name="down_pro">Download MapsWithMe Pro</string>
+    <string  name="url_pro">http://mapswith.me/get</string>
+    <string  name="url_lite">http://mapswith.me/app</string>
+    
 </resources>

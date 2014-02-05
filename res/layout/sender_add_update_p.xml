@@ -39,6 +39,18 @@
         android:hint="@string/mobileNumber"
         android:inputType="phone"
         android:maxLength="14" />
+    
+    <EditText
+        android:id="@+id/add_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:textColor="@color/Black"
+        android:textSize="25sp"
+        android:background="@color/White"
+        android:hint="E-Mail Address"
+        android:maxLength="25" />
 
     <LinearLayout
         android:id="@+id/add_view"

@@ -1,13 +1,31 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.sender;
 
-import java.io.File;
 import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.xortech.multipanic.PanicAddMain;
+import com.mapswithme.maps.api.DownloadMapsWithMeDialog;
+import com.mapswithme.maps.api.MapsWithMeApi;
 import com.xortech.extras.AppRater;
+import com.xortech.multipanic.PanicAddMain;
 import com.xortech.multitag.TagAddMain;
+import com.xortech.sender.R;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -21,6 +39,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -39,60 +58,64 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class SenderMain extends FragmentActivity implements ActionBar.TabListener {
+
+	private static final int DIALOG_ASK_PASSWORD = 1;
+	private static final String DEFAULT_CODE = "12345";	
+	private static final String GMAPS = "1";
+	private static final String MWM = "2";		
+	private static final int RQS_GooglePlayServices = 1;
 	
-	// Constants
-	public static final int DIALOG_ASK_PASSWORD = 1;
-	public static final String DEFAULT_CODE = "12345";	
-	private static final int ZERO = 0;
-	private static final int MENU_EXIT = Menu.FIRST;
-	private static final int MENU_RATE = Menu.FIRST + 1;	
-	private static final int MENU_TAGS = Menu.FIRST + 2;
-	private static final int MENU_PANIC = Menu.FIRST + 3;
-	final int RQS_GooglePlayServices = 1;
-	
-	private SmsReceiver mReceiver;
-	int numberRuns = 0;
-		
-	// Instances
-	SectionsPagerAdapter mSectionsPagerAdapter;
-	ViewPager mViewPager;
-	SharedPreferences preferences;
+	private SmsReceiver mReceiver;	
+	private SectionsPagerAdapter mSectionsPagerAdapter;
+	private ViewPager mViewPager;
+	private SharedPreferences preferences;
+	private String mapType = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sender_main);
 		
-		// Check status of Google Play Services
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        
-        // Check Google Play Service Available
-        try {
-            if (status != ConnectionResult.SUCCESS) {
-            	GooglePlayServicesUtil.getErrorDialog(status, this, RQS_GooglePlayServices).show();
-            }
-        } catch (Exception e) {
-        	Log.e("Error: GooglePlayServiceUtil: ", "" + e);
-        }
-        
-        // Register broadcast receiver
-        IntentFilter localIntentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-        localIntentFilter.setPriority(2147483647);
-        mReceiver = new SmsReceiver();
-        registerReceiver(mReceiver, localIntentFilter);
-				
-		// Load preferences
+		// REMOVE THE TITLE FROM THE ACTIONBAR
+		getActionBar().setDisplayShowTitleEnabled(false);
+		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
+		mapType = preferences.getString("mapType", GMAPS);
+		
+		/*
+		 * IF GOOGLE MAPS IS SELECTED AS THE DEFAULT, THEN CHECK TO
+		 * SEE IF THE USER HAS THE CORRECT VERSION OF GOOGLE PLAY SERVICES
+		 */
+		if (mapType.equals(GMAPS)) {
+			// GET GOOGLE PLAY STATUS
+	        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+	        
+	        // CHECK IF GOOGLE PLAY SERVICE IS AVAILABLE 
+	        try {
+	            if (status != ConnectionResult.SUCCESS) {
+	            	GooglePlayServicesUtil.getErrorDialog(status, this, RQS_GooglePlayServices).show();
+	            }
+	        } catch (Exception e) {
+	        	Log.e("Error: GooglePlayServiceUtil: ", "" + e);
+	        }
+		} 
+     
+        // REGISTER A BROADCAST RECEIVER
+        IntentFilter localIntentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        localIntentFilter.setPriority(2147483646);
+        mReceiver = new SmsReceiver();
+        registerReceiver(mReceiver, localIntentFilter);
+			
 		try {
-			// Try to launch app rater
+			// TRY TO LAUNCH APP RATER 
 			AppRater.app_launched(this);
 		}
 		catch (Exception e) {
 			Log.e("Error AppRater: ", "" + e);
 		}
 		
-		// Set up the action bar.
+		// SET UP THE ACTION BAR
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
@@ -120,40 +143,34 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 					.setTabListener(this));
 		}
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.sender_main, menu);
-		menu.add(0, MENU_EXIT, MENU_EXIT, "Exit");
-		menu.add(0, MENU_RATE, MENU_RATE, "Rate This App");				
-		menu.add(0, MENU_TAGS, MENU_TAGS, "My Tags");	
-		menu.add(0, MENU_PANIC, MENU_PANIC, "Panic Numbers");
-		return true;
+
+		return super.onCreateOptionsMenu(menu);
 	}
 	
+	/**
+	 * Handle menu options item selected
+	 * */
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
 		switch (item.getItemId()) {
-		case MENU_EXIT:
-	        try {
-	            trimCache(this);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
+		case R.id.quit:
+	        MyUpdateReceiver.trimCache(this);
 			System.exit(0);
 			return true;
-		case MENU_RATE:
-			// Change preferences to never show again
-			SharedPreferences prefs = getSharedPreferences("apprater", ZERO);
+		case R.id.rateApp:
+			// CHANGE PREFERENCES TO NEVER SHOW AGAIN
+			SharedPreferences prefs = getSharedPreferences("apprater", 0);
 			SharedPreferences.Editor editor = prefs.edit();
         	editor.putBoolean("dontshowagain", true);     
         	editor.commit();
-        	
         	try {
-            	// Start apprater
             	Intent rateApp = new Intent(Intent.ACTION_VIEW);
             	rateApp.setData(Uri.parse("market://details?id=com.xortech.sender"));
             	startActivity(rateApp);
@@ -161,36 +178,47 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
         		Log.e("Error launching apprater: ", "" + e);
         	}
 			return true;
-		case MENU_TAGS:
+		case R.id.tagsApp:
 			try {
 				Intent myTagIntent = new Intent(this, TagAddMain.class);
 				startActivity(myTagIntent);
 			} catch (Exception e) {
-				Log.e("Error launghing mytags: ", "" + e);
+				Log.e("Error launching mytags: ", "" + e);
 			}
 			return true;
-		case MENU_PANIC:
+		case R.id.panicApp:
 			try {
 				Intent myPanicIntent = new Intent(this, PanicAddMain.class);
 				startActivity(myPanicIntent);
 			} catch (Exception e) {
-				Log.e("Error launghing panic: ", "" + e);
+				Log.e("Error launching panic: ", "" + e);
+			}
+			return true;
+		case R.id.donateApp:
+			try {
+        		Intent upIntent = new Intent();
+        		upIntent.setAction(Intent.ACTION_VIEW);
+        		upIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+        		upIntent.setData(Uri.parse("https://coinbase.com/checkouts/4bc224c6764e7908bea274c12badce5e"));
+        		startActivity(upIntent); 
+			} catch (Exception e) {
+				Log.e("Error launching donate: ", "" + e);
 			}
 			return true;
 	    case android.R.id.home:
 	        Intent upIntent = NavUtils.getParentActivityIntent(this);
 	        if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
 	            TaskStackBuilder.create(this)
-	                    // Add all of this activity's parents to the back stack
+	                    // ADD ALL THE PARENTS TO THE BACKSTACK
 	                    .addNextIntentWithParentStack(upIntent)
-	                    // Navigate up to the closest parent
+	                    // NAVIGATE UP TO THE CLOSEST PARENT
 	                    .startActivities();
 	        } else {
-	            // navigate up to the logical parent activity.
+	            // NAVIGATE UP TO THE LOGICAL PARENT ACTIVITY
 	            NavUtils.navigateUpTo(this, upIntent);
 	        }
 	        return true;
-		default:
+	    case R.id.action_settings:
 			showDialog(DIALOG_ASK_PASSWORD);
 		}
 		return true;
@@ -220,14 +248,12 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 		@Override
 		public Fragment getItem(int position) {
 		    Fragment fragment = null;
-			//Bundle args = new Bundle();
+		    
 		    switch(position){
 		    case 0:
 		        fragment = new SenderSend(SenderMain.this);
 		        break;
 		    case 1:
-		        //fragment = new SenderReceive(getApplicationContext(), SenderMain.this);
-		    	// add above to pass activity into fragment
 		        fragment = new SenderReceive(SenderMain.this);
 		        break;
 		    default:
@@ -238,7 +264,6 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 
 		@Override
 		public int getCount() {
-			// Show 3 total pages.
 			return 2;
 		}
 
@@ -255,6 +280,9 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 		}
 	}
 	
+	/**
+	 * METHOD TO HANDLE THE SENDER DIALOG BOXES
+	 */
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {		
@@ -269,26 +297,26 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
                 builder.setView(layout);
 
                 builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @SuppressWarnings("deprecation")
+					@SuppressWarnings("deprecation")
 					public void onClick(DialogInterface dialog, int whichButton) {
                         removeDialog(DIALOG_ASK_PASSWORD);
                     }
                 });
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @SuppressWarnings("deprecation")
+					@SuppressWarnings("deprecation")
 					public void onClick(DialogInterface dialog, int which) {
                         String strPassword1 = password1.getText().toString();           
                         String locCode = preferences.getString("lockCode", DEFAULT_CODE);
-                        // Validate user input
+                        // VALIDATE THE USER INPUT
                         if (strPassword1.equals(locCode)) {
                         	Intent intent = new Intent(SenderMain.this, MyPreferences.class);
                         	startActivity(intent);
-                        	// Toast successful login
+                        	// TOAST A SUCCESSFUL LOGIN
                         	Toast.makeText(SenderMain.this,
                         			"Login Successful!", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                        	// Toast fail login
+                        	// TOAST FAIL LOGIN
                         	Toast.makeText(SenderMain.this,
                         			"Login Failed", Toast.LENGTH_SHORT).show();
                         }
@@ -301,9 +329,23 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 		return null;
 	}
 	
-	/**
-	 * Functions for handling App state
-	 * */
+	@Override
+	public void onResume(){
+		super.onResume();
+		
+		mapType = preferences.getString("mapType", GMAPS);
+		
+		if (mapType.equals(MWM) & !MapsWithMeApi.isMapsWithMeInstalled(this)) {
+			DownloadMapsWithMeDialog mdialog = new DownloadMapsWithMeDialog(this);
+			mdialog.show();
+		}
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();	
+	}
+	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {	    
 	    // Call the superclass so it can save the view hierarchy state
@@ -321,16 +363,6 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 	}
 	
 	@Override
-	public void onResume() {
-		super.onResume();
-	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();
-	}
-	
-	@Override
 	public void onStop() {
 		super.onStop();
 	}
@@ -338,17 +370,15 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(mReceiver);
+		MyUpdateReceiver.trimCache(this);
 		super.onStop();
-		
-	    try {
-	    	trimCache(this);
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }
 	}
 	
 	@Override
 	public void onBackPressed() {
+		
+		MyUpdateReceiver.trimCache(this);
+		
 	    new AlertDialog.Builder(this)
 	        .setTitle("Comfirm Exit")
 	        .setMessage("Are you sure you want to quit Sender now?")
@@ -357,33 +387,8 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 
 	            public void onClick(DialogInterface arg0, int arg1) {
 	                SenderMain.super.onBackPressed();
+	                finish();
 	            }
 	        }).create().show();
 	}
-	
-    public static void trimCache(Context context) {
-        try {
-           File dir = context.getCacheDir();
-           if (dir != null && dir.isDirectory()) {
-              deleteDir(dir);
-           }
-        } catch (Exception e) {
-           // TODO: handle exception
-        }
-     }
-
-     public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-           String[] children = dir.list();
-           for (int i = 0; i < children.length; i++) {
-              boolean success = deleteDir(new File(dir, children[i]));
-              if (!success) {
-                 return false;
-              }
-           }
-        }
-
-        // The directory is now empty so delete it
-        return dir.delete();
-     }
 }

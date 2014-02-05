@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.sender;
 
 import java.util.ArrayList;
@@ -6,7 +22,9 @@ import com.xortech.database.MsgDatabaseHandler;
 import com.xortech.database.MessageData;
 import com.xortech.database.MyTags;
 import com.xortech.database.TagDatabaseHandler;
+import com.xortech.map.MapsWithMe;
 import com.xortech.map.SenderMap;
+import com.xortech.sender.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -14,6 +32,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,7 +43,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,50 +50,38 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SenderReceive extends Fragment {
+public class SenderReceive extends Fragment implements OnSharedPreferenceChangeListener {
 
-	public static final String DEFAULT_PHONE = "+18775550000";
-	public static final String SECRET_LOCATION_C = "*3*";
-	public static final String SECRET_LOCATION_D = "*4*";
-	public static final String DEFAULT_PASSWORD = "1234";
-	public static final String ADDRESS = "address";
-	public static final String BODY = "body";
-	public static final String GOOGLE_STRING = "http://maps.google.com/maps?q=";
-	public static final int DOUBLE_ZERO = 00;
-	public static final int ZERO = 0;
-	public static final String AT = "@";
-	public static final int RESET = 1;
-	public static final int SEND = 2;
+	private static final String SECRET_LOCATION_C = "*3*";
+	private static final String GOOGLE_STRING = "http://maps.google.com/maps?q=";
+	private static final int DOUBLE_ZERO = 00;
+	private static final String GMAP = "1";
 	
-	Button locateTags;
-	Button deleteSMS;
-	Button updateList;
-	Button mapTags;
-	SharedPreferences preferences;
-	Context context;
-	ListView smsListView;
-    Message_Adapter mAdapter;
-    MsgDatabaseHandler db;
-    String toastMsg;
-    	
-	String msg = null;
-	int counter = 0;
+	private Button locateTags;
+	private Button deleteSMS;
+	private Button updateList;
+	private Button mapTags;
+	private Context context;
+	private ListView smsListView;
+	private Message_Adapter mAdapter;
+	private MsgDatabaseHandler db;
+	private SharedPreferences preferences;
+	private String mapType = null;
     
-    ArrayList<MessageData> message_data = new ArrayList<MessageData>();
+	private static ArrayList<MessageData> message_data = new ArrayList<MessageData>();
     
-	/**
-	 * SenderReceive Constructor
-	 * */
 	public SenderReceive(Context ctx) {
 		context = ctx;
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.sender_receive, container, false);		
+		View rootView = inflater.inflate(R.layout.sender_receive, container, false);
 		
-        // Load preferences
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		mapType = preferences.getString("mapType", GMAP);
+		
+		preferences.registerOnSharedPreferenceChangeListener(this);
         
     	try {
     		smsListView = (ListView) rootView.findViewById(R.id.SMSList);
@@ -91,19 +97,7 @@ public class SenderReceive extends Fragment {
 	    mapTags = (Button) rootView.findViewById(R.id.getMapBtn);
         
 		/**
-		 * Listener to request A-GPS update
-		 * */
-        updateList.setOnLongClickListener(new OnLongClickListener() { 
-            @Override
-            public boolean onLongClick(View v) {
-            	SendToMyTags(RESET);
-            	Toast.makeText(context, "GPS reset sent. This could take a bit.", Toast.LENGTH_LONG).show();
-                return true;
-            }
-        });
-        
-		/**
-		 * Listener to update the list in the main view
+		 * LISTEN FOR THE UPDATE BUTTON PRESS
 		 * */
         updateList.setOnClickListener(new View.OnClickListener() {
         	@Override
@@ -113,29 +107,39 @@ public class SenderReceive extends Fragment {
         		} catch (Exception e) {
         			Log.e("Error updating list: ", "" + e);
         		}
-
         	}
         });
-        
+              
         /**
-		 * Listener for clicking tags on the map
+		 * LISTEN FOR THE MAP BUTTON PRESS
 		 * */
         mapTags.setOnClickListener(new View.OnClickListener() {
         	@Override
         	public void onClick(View arg0) {
-        		try {
-            		Intent mapIntent = new Intent(getActivity().getBaseContext(), SenderMap.class);       		
-            		startActivity(mapIntent);
-        		} catch (Exception e) {
-        			Log.e("Error loading map.", "" + e);
-        			Toast.makeText(context, "Error: Problem loading Google Maps!", Toast.LENGTH_LONG).show();
+        		
+        		if (mapType.equals(GMAP)) {
+            		try {
+                		Intent mapIntent = new Intent(getActivity().getBaseContext(), SenderMap.class);       		
+                		startActivity(mapIntent);
+            		} catch (Exception e) {
+            			Log.e("Error loading map.", "" + e);
+            			Toast.makeText(context, "Error: Problem loading Google Maps!", Toast.LENGTH_LONG).show();
+            		}
+        		} else {
+            		try {
+                		Intent mapIntent = new Intent(getActivity().getBaseContext(), MapsWithMe.class);       		
+                		startActivity(mapIntent);
+            		} catch (Exception e) {
+            			Log.e("Error loading map.", "" + e);
+            			Toast.makeText(context, "Error: Problem loading Google Maps!", Toast.LENGTH_LONG).show();
+            		}
         		}
 
         	}
         });
         
         /**
-		 * Listener for the delete button
+		 * LISTEN FOR THE DELETE BUTTON PRESS
 		 * */
         deleteSMS.setOnClickListener(new View.OnClickListener() {
         	@Override
@@ -153,14 +157,14 @@ public class SenderReceive extends Fragment {
         });
           
         /**
-		 * Listener for the locate button
+		 * LISTEN FOR THE LOCATE BUTTON PRESS
 		 * */
         locateTags.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
 				try {
-					SendToMyTags(SEND);
+					SendToMyTags();
 			        Toast.makeText(context, "Location Requests Sent", Toast.LENGTH_LONG).show();				
 				} catch (Exception e) {
 					Log.e("Error locating tags: ", "" + e);
@@ -172,8 +176,11 @@ public class SenderReceive extends Fragment {
 	}
 	
 	/**
-	 * Function to get the time difference between SMS and current time
-	 * */
+	 * METHOD TO GET THE TIME DIFFERENCE FROM A SMS AND THE CURRENT TIME
+	 * @param now
+	 * @param then
+	 * @return
+	 */
 	public String getDifference(long now, long then){
 		try {
 	        if(now > then) {
@@ -189,8 +196,8 @@ public class SenderReceive extends Fragment {
     }
 	
 	/**
-	 * Function to refresh data from DB into the list
-	 * */
+	 * METHOD TO UPDATE THE LISTVIEW DATA
+	 */
 	public void Set_Referash_Data() {
 		message_data.clear();
 		db = new MsgDatabaseHandler(context);
@@ -206,25 +213,29 @@ public class SenderReceive extends Fragment {
 		    String time = message_array_from_db.get(i).getTime();
 		    
 		    MessageData msg = new MessageData();
+		    
 		    msg.setID(tempIdNo);
 		    msg.setTag(tag);
 		    msg.setPhoneNumber(mobile);
 		    msg.setLatitude(latitude);
 		    msg.setLongitude(longitude);
 		    msg.setTime(time);
-
+		    
 		   	message_data.add(msg);
 		}
+		
 		db.close();
+		
 		mAdapter = new Message_Adapter(getActivity(), R.layout.sender_display_msg, message_data);
 		smsListView.setAdapter(mAdapter);
 		mAdapter.notifyDataSetChanged();
 	}
 	
 	/**
-	 * Function to send SMS to tags
-	 * */
-	public void SendToMyTags(int action) {
+	 * METHOD TO SEND SMS TO TAGS IN THE DATABASE
+	 * @param action
+	 */
+	public void SendToMyTags() {
     	TagDatabaseHandler mytdb = new TagDatabaseHandler(context);
     	ArrayList<MyTags> mytag_array_from_db = mytdb.Get_Tags();
     	
@@ -232,24 +243,26 @@ public class SenderReceive extends Fragment {
 			String tagMsg = null;
 			String mobile = null;
 			String secret = null;
+			int enabled = 0;
 			
 			mobile = mytag_array_from_db.get(i).getMyTagPhoneNumber();
 			secret = mytag_array_from_db.get(i).getTagSecret();
+			enabled = mytag_array_from_db.get(i).getTagStatus();
 			
-			if (action == SEND) {
+			System.out.println(mobile);
+			
+			if (enabled == 1) {
 				tagMsg = SECRET_LOCATION_C + secret;	
+				SmsManager.getDefault().sendTextMessage(mobile, null, tagMsg, null, null);
 			}
-			else if (action == RESET) {
-				tagMsg = SECRET_LOCATION_D + secret;
-			}
-			SmsManager.getDefault().sendTextMessage(mobile, null, tagMsg, null, null);
 		}
 		mytdb.close();
 	}
 	
 	/**
-	 * Function for toast messages
-	 * */
+	 * METHOD TO HANDLE TOAST MESSAGES
+	 * @param msg
+	 */
 	public void Show_Toast(String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
@@ -257,17 +270,23 @@ public class SenderReceive extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		
+		preferences.registerOnSharedPreferenceChangeListener(this);
+		
+		mapType = preferences.getString("mapType", GMAP);
+		
 		try {
 			Set_Referash_Data();
 		}
 		catch (Exception e) {
-			Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+			Log.e("Error resuming ", "" + e);
 		}
 	}
 	
 	/**
-	 * Main class used for managing array of tag data
-	 * */
+	 * CLASS FOR HANDLING MESSAGE DATA AND THE LAYOUT
+	 *
+	 */
 	public class Message_Adapter extends ArrayAdapter<MessageData> {
 		Activity activity;
 		int layoutResourceId;
@@ -283,7 +302,7 @@ public class SenderReceive extends Fragment {
 		}
 		
 		/**
-		 * Function to get tag data from array for display
+		 * METHOD TO GET DATA FROM THE ARRAY..AND DISPLAY IT
 		 * */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
@@ -318,25 +337,26 @@ public class SenderReceive extends Fragment {
 		    String location = "Location: " + lat + "," + lon;
 		    holder.location.setText(location);
 		   	    
-		    // Process Time
+		    // PROCESS TIME
 		    String _time = (message.getTime());
 		
 		    Long then = Long.parseLong(_time);
 			Long now = System.currentTimeMillis();
 			String difference = getDifference(now, then);
 			
-			// counter for time split
+			// COUNTER FOR TIME SPLIT
 			int colon = 0;
 			
-			// Count colons for proper output
+			// COUNT COLONS FOR OUTPUT
 			for(int i = 0; i < difference.length(); i++) {
 			    if(difference.charAt(i) == ':') colon++;
 			}
 			
-			// Split the difference by colon
+			// SPLIT THE DIFFERENCE BY THE ":"
 			String[] splitDiff = difference.split(":");
 			String hours = null, minutes = null, seconds = null, str = null;
 			
+			// CALCULATE THE TIME DISPLAY FOR EACH TAG
 			switch (colon) {
 			case 1:
 				if (Integer.parseInt(splitDiff[0]) == DOUBLE_ZERO) {
@@ -374,15 +394,12 @@ public class SenderReceive extends Fragment {
 				str = "Happening Now";
 			}			
 			
-			/**
-			 * Listener to show data on item click
-			 * */
 		    holder.lastReport.setText(str);
+		    
 		    holder.locate.setOnClickListener(new OnClickListener() {
 
 		    	@Override
 		    	public void onClick(View v) {
-		    		// TODO Auto-generated method stub
 		    		try {
 		    			String latlon = lat + "," + lon;
 		    			Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(GOOGLE_STRING + latlon + "(" + _tagID + ")"));
@@ -395,7 +412,7 @@ public class SenderReceive extends Fragment {
 		    });
 		    
 		    /**
-			 * Listener delete an individual message
+			 * LISTENER TO REMOVE AN INDIVIDUAL TAG ENTRY
 			 * */
 		    holder.remove.setOnClickListener(new OnClickListener() {
 
@@ -421,7 +438,10 @@ public class SenderReceive extends Fragment {
 		    });
 		    return row;
 		}
-
+		/**
+		 * HOLDER CLASS
+		 *
+		 */
 		class UserHolder {
 		    TextView tagID;
 		    TextView location;
@@ -429,5 +449,40 @@ public class SenderReceive extends Fragment {
 		    Button locate;
 		    Button remove;
 		}
+	}
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (preferences != null) {
+        	preferences.unregisterOnSharedPreferenceChangeListener(this);
+        }
+        MyUpdateReceiver.trimCache(context);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+    
+    @Override 
+    public void onDestroy() {
+    	super.onDestroy();
+    	if (preferences != null) {
+    		preferences.unregisterOnSharedPreferenceChangeListener(this);
+    	}
+    	MyUpdateReceiver.trimCache(context);
+    }
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+		if (key.equals("mapType")) {
+			mapType = preferences.getString("mapType", GMAP);
+		}		
 	}
 }

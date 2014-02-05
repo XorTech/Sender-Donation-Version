@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.extras;
 
 import android.app.Dialog;
@@ -12,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class AppRater {
+	
     private final static String APP_TITLE = "Sender";
     private final static String APP_PNAME = "com.xortech.sender";
     
@@ -21,11 +38,15 @@ public class AppRater {
     
     static int option = 0;
     
+    /**
+     * METHOD TO HANDLE AND COUNT EACH TIME THE APP IS LAUNCHED
+     * @param mContext
+     */
     public static void app_launched(Context mContext) {
-        SharedPreferences prefs = mContext.getSharedPreferences("apprater", ZERO);
+        SharedPreferences prefs = mContext.getSharedPreferences("apprater", 0);
         
         SharedPreferences.Editor editor = prefs.edit();
-        // Increment launch counter
+        // INCREMENT THE LAUNCH COUNTER
         long counter = prefs.getLong("launch_count", ZERO);
         
         if (counter == ZERO) {
@@ -36,15 +57,15 @@ public class AppRater {
         }
         else {
             editor.putLong("launch_count", counter + 1);
-            // Return to main if don't show again is true
+            // RETURN TO MAIN IF DON'T SHOW AGAIN IS TRUE
             if (prefs.getBoolean("dontshowagain", false)) { 
             	return; 
             }
             else {
-            	// Get date of first launch
+            	// GET THE DATE OF THE FIRST LAUNCH
             	Long date_firstLaunch = prefs.getLong("date_firstlaunch", ZERO);
             
-            	// Wait at least n days or n launches for prompt
+            	// WAIT AT LEAST N DAYS OR N LAUNCHES FOR PROMPT
             	if (counter >= LAUNCHES_UNTIL_PROMPT) {
             		showRateDialog(mContext, editor);
             	}
@@ -56,6 +77,11 @@ public class AppRater {
         editor.commit();
     }   
     
+    /**
+     * METHOD TO SHOW THE RATE ME NOW DIALOG
+     * @param mContext
+     * @param editor
+     */
     public static void showRateDialog(final Context mContext, final SharedPreferences.Editor editor) {
         final Dialog dialog = new Dialog(mContext);
         dialog.setTitle("Rate " + APP_TITLE);

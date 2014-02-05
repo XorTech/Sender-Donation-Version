@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.map;
 
 import android.app.Service;
@@ -14,48 +30,56 @@ public class GPSTracker extends Service implements LocationListener {
  
     private final Context mContext;
  
-    // flag for GPS status
+    // FLAG FOR GPS STATUS 
     boolean isGPSEnabled = false;
  
-    // flag for network status
+    // FLAG FOR NETWORK STATUS
     boolean isNetworkEnabled = false;
  
-    // flag for GPS status
+    // FLAG FOR GPS STATUS
     boolean canGetLocation = false;
  
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
+    Location location; 
+    double latitude;
+    double longitude; 
  
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 5 meters
+    // THE MINIMUM DISTANCE TO CHANGE UPDATES - IN METERS
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 5 METERS
  
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+    // THE MINIMUM TIME BETWEEN UPDATES IN MILLISECONDS
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 MINUTE
  
-    // Declaring a Location Manager
+    // DECLARING A LOCATION MANAGER
     protected LocationManager locationManager;
- 
+    
+    /**
+     * CONSTRUCTOR
+     * @param context
+     */
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
     }
- 
+    
+    /**
+     * METHOD TO CHECK THE STATUS OF LOCATION SERVICES
+     * @return
+     */
     public Location getLocation() {
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
  
-            // getting GPS status
+            // GET GPS STATUS 
             isGPSEnabled = locationManager
                     .isProviderEnabled(LocationManager.GPS_PROVIDER);
  
-            // getting network status
+            // GET NETWORK STATUS 
             isNetworkEnabled = locationManager
                     .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
  
             if (!isGPSEnabled && !isNetworkEnabled) {
-                // no network provider is enabled
+                // NO NETWORK PROVIDERS AVAILABLE 
             } else {
             	this.canGetLocation = true;
 				if (isNetworkEnabled) {
@@ -73,7 +97,7 @@ public class GPSTracker extends Service implements LocationListener {
 						}
 					}
 				}
-				// if GPS Enabled get lat/long using GPS Services
+				// IF GPS IS ENABLED GET THE LAT/LONG USING GPS SERVICES
 				if (isGPSEnabled) {
 					if (location != null) {
 						locationManager.requestLocationUpdates(
@@ -101,9 +125,8 @@ public class GPSTracker extends Service implements LocationListener {
     }
      
     /**
-     * Stop using GPS listener
-     * Calling this function will stop using GPS in your app
-     * */
+     * METHOD TO STOP RECEIVING GPS UPDATES - SAVES BATTERY!!
+     */
     public void stopUsingGPS(){
         if(locationManager != null){
             locationManager.removeUpdates(GPSTracker.this);
@@ -111,39 +134,31 @@ public class GPSTracker extends Service implements LocationListener {
     }
      
     /**
-     * Function to get latitude
-     * */
+     * METHOD TO GET THE LATITUDE OF THE PHONE
+     * @return
+     */
     public double getLatitude(){
         if(location != null){
             latitude = location.getLatitude();
         }
          
-        // return latitude
         return latitude;
     }
      
     /**
-     * Function to get longitude
-     * */
+     * METHOD TO GET THE LONGITUDE OF THE PHONE 
+     * @return
+     */
     public double getLongitude(){
         if(location != null){
             longitude = location.getLongitude();
         }
          
-        // return longitude
         return longitude;
-    }
-    
-    /**
-     * Function mobile reset and download A-GPS data
-     * */
-    public void ResetGPS() {
-    	locationManager.sendExtraCommand(LocationManager.NETWORK_PROVIDER, "delete_aiding_data" , null);
-    	locationManager.sendExtraCommand(LocationManager.GPS_PROVIDER, "delete_aiding_data" , null);
     }
      
     /**
-     * Function to check GPS/wifi enabled
+     * METHOD TO CHECK IF THE GPS OR NETWORK PROVIDE ARE ENABLED FOR GETTING LOCATION DATA
      * @return boolean
      * */
     public boolean canGetLocation() {

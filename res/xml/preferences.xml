@@ -1,20 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="General Settings">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <PreferenceCategory 
+        android:title="Privacy Settings" >
+        
+        <CheckBoxPreference
+            android:key="senderEnabled"
+            android:title="Sender Status"
+            android:summary="Allow others to retrieve your location. Alternatively, change your default code."
+            android:defaultValue="true" />
+            
+    </PreferenceCategory>
+
+    <PreferenceCategory 
+        android:title="General Settings" >
+        
         <EditTextPreference 
             android:key="secretCode" 
             android:title="@string/secret_code" 
             android:summary="@string/secret_code_summary" 
-            android:defaultValue="@string/default_secretcode"/>
+            android:defaultValue="@string/default_secretcode" />
+        
     	<EditTextPreference 
-    	    android:title="@string/phone_id" 
+    	    android:title="@string/tag_id" 
     	    android:key="tagID" 
     	    android:summary="@string/tag_id_summary" 
-    	    android:defaultValue="@string/default_tagid"/>
+    	    android:defaultValue="@string/default_tagid" />
+    	
         <EditTextPreference 
             android:title="@string/lock_code" 
             android:key="lockCode" 
             android:summary="@string/lock_code_summary" 
-            android:defaultValue="@string/default_lockcode"/></PreferenceCategory>
+            android:defaultValue="@string/default_lockcode" />
+
+        <EditTextPreference 
+            android:title="My Email" 
+            android:key="myEmail" 
+            android:summary="Enter the email address to send notifications from. This must be a GMAIL account! For security purposes, make a seperate email from your regular email" />  
+            
+        <EditTextPreference
+            android:title="My Password"
+            android:key="myPass"
+            android:summary="Enter the password to the email you use for sending notifications. For security purposes, make a seperate email from your regular email"
+            android:inputType="textPassword" />
+        
+    </PreferenceCategory>
+    
+    <PreferenceCategory 
+        android:title="Map Settings" >
+        
+        <ListPreference android:title="Map Type"
+        	android:summary="Select the type of maps you would like to use"
+            android:key="mapType"
+            android:defaultValue="1"
+            android:entries="@array/mapNames"
+            android:entryValues="@array/mapValues" />
+        
+    </PreferenceCategory>
+    
 </PreferenceScreen>

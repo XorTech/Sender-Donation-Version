@@ -1,69 +1,140 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.database;
 
 public class MyTags {
 
-    // private variables
     public int _id;
     public String _tag;
     public String _phone_number;
     public String _secret;
+    public int _active;
 
     public MyTags() {
+    	// NULL
     }
 
-    // constructor
-    public MyTags(int id, String tag, String phone_number, String secret) {
-	this._id = id;
-	this._tag = tag;
-	this._phone_number = phone_number;
-	this._secret = secret;
+    /**
+     * CONSTRUCTOR
+     * @param id
+     * @param tag
+     * @param phone_number
+     * @param secret
+     * @param active
+     */
+    public MyTags(int id, String tag, String phone_number, String secret, int active) {
+    	this._id = id;
+    	this._tag = tag;
+    	this._phone_number = phone_number;
+    	this._secret = secret;
+    	this._active = active;
     }
 
-    // constructor
-    public MyTags(String tag, String phone_number, String secret) {
-	this._tag = tag;
-	this._phone_number = phone_number;
-	this._secret = secret;
+    /**
+     * CONSTRUCTOR
+     * @param tag
+     * @param phone_number
+     * @param secret
+     * @param active
+     */
+    public MyTags(String tag, String phone_number, String secret, int active) {
+    	this._tag = tag;
+    	this._phone_number = phone_number;
+    	this._secret = secret;
+    	this._active = active;
     }
 
-    // getting id
+    /**
+     * METHOD TO GET THE ID
+     * @return
+     */
     public int getID() {
-	return this._id;
+    	return this._id;
     }
 
-    // setting id
+    /**
+     * METHOD TO SET THE ID
+     * @param id
+     */
     public void setID(int id) {
-	this._id = id;
+    	this._id = id;
     }
 
-    // getting tag
+    /**
+     * METHOD TO GET THE TAG NAME
+     * @return
+     */
     public String getMyTag() {
-	return this._tag;
+    	return this._tag;
     }
 
-    // setting tag
+    /**
+     * METHOD TO SET THE TAG NAME
+     * @param tag
+     */
     public void setMyTag(String tag) {
-	this._tag = tag;
+    	this._tag = tag;
     }
 
-    // getting phone number
+    /**
+     * METHOD TO GET THE PHONE NUMBER
+     * @return
+     */
     public String getMyTagPhoneNumber() {
-	return this._phone_number;
+    	return this._phone_number;
     }
 
-    // setting phone number
+    /**
+     * METHOD TO SET THE PHONE NUMBER
+     * @param phone_number
+     */
     public void setMyTagPhoneNumber(String phone_number) {
-	this._phone_number = phone_number;
+    	this._phone_number = phone_number;
     }
     
-    // getting phone number
+    /**
+     * METHOD TO GET THE SECRET
+     * @return
+     */
     public String getTagSecret() {
-	return this._secret;
+    	return this._secret;
     }
 
-    // setting phone number
+    /**
+     * METHOD TO SET THE SECRET
+     * @param secret
+     */
     public void setTagSecret(String secret) {
-	this._secret = secret;
+    	this._secret = secret;
     }
     
+    /**
+     * METHOD TO GET THE STATUS
+     * @return
+     */
+    public int getTagStatus() {
+    	return this._active;
+    }
+
+    /**
+     * METHOD TO SET THE STATUS
+     * @param active
+     */
+    public void setTagStatus(int active) {
+    	this._active = active;
+    }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 XOR TECH LTD 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package com.xortech.sender;
 
 import java.util.ArrayList;
@@ -9,6 +25,7 @@ import com.xortech.database.MessageData;
 import com.xortech.database.MyTags;
 import com.xortech.database.TagDatabaseHandler;
 import com.xortech.map.GPSTracker;
+import com.xortech.sender.R;
 
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -28,11 +45,8 @@ public class SmsReceiver extends BroadcastReceiver {
 	
 	private static final String SMS_EXTRA_NAME = "pdus";   
     private static final String SECRET_LOCATION_A = "*1*";
-    private static final String SECRET_LOCATION_B = "*2*";
-    private static final String SECRET_LOCATION_C = "*3*";  
-    private static final String SECRET_LOCATION_D = "*4*";
+    private static final String SECRET_LOCATION_B = "*3*";  
     private static final String GOOGLE_STRING = "http://maps.google.com/maps?q=";
-    private static final String DEFAULT_NUMBER = "+18775550000";
     private static final String DEFAULT_CODE = "1234";
     private static final String DEFAULT_TAGID = "Sender-01";
     private static final String PANIC_TXT = "Panic Detected!";
@@ -43,108 +57,89 @@ public class SmsReceiver extends BroadcastReceiver {
     private static final long FIVE_SECONDS = 5000L;
     private static final String NO_COORDS = "Unable to retrieve coordinates from: ";
 	
-    SenderReceive deviceMap;
-    SharedPreferences preferences;
-	NotificationManager notificationManager;
-	Timer mytimer;	
-	Uri soundUri;
-	TimerTask mytask;
-	Context context;
+    private SharedPreferences preferences;
+    private NotificationManager notificationManager;
+    private Timer mytimer;	
+    private Uri soundUri;
+    private TimerTask mytask;
+    private Context context;
+    private GPSTracker gps;
 		
-    String returnNumber = null;
-    String secretCode = null;
-    String tagID = null;
-    String googleString = null;
-    String tag_ID = null;
-    String tag_lat = null;
-    String tag_long = null;
-    String latitude = null;
-    String longitude = null;
-    String location = null;
-	String emergencyTag = null;
+    private String secretCode = null;
+    private String tagID = null;
+    private String googleString = null;
+    private String latitude = null;
+    private String longitude = null;
+    private String location = null;
+    private String emergencyTag = null;
+    private boolean senderEnabled = true;
 	        
-	public void onReceive( final Context ctx, Intent intent ) 
-	{   
-		// Get SMS map from Intent
+	public void onReceive(final Context ctx, Intent intent) {   
+		// GET SMS MAP FROM INTENT
 	    Bundle extras = intent.getExtras();
 	    context = ctx;
 	    
-	    // GPS Instance
-        GPSTracker gps = new GPSTracker(context);
+	    // GPS INSTANCE
+        gps = new GPSTracker(context);
+        
+    	// LOAD PREFERENCES
+    	preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    	secretCode = preferences.getString("secretCode", DEFAULT_CODE);
+    	tagID = preferences.getString("tagID", DEFAULT_TAGID);
+    	senderEnabled = preferences.getBoolean("senderEnabled", true);
 	    
-        if ( extras != null )
-        {
-        	// Load preferences into variables
-        	preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        	returnNumber = preferences.getString("returnNumber", DEFAULT_NUMBER);
-        	secretCode = preferences.getString("secretCode", DEFAULT_CODE);
-        	tagID = preferences.getString("tagID", DEFAULT_TAGID);
-            
-        	// Get received SMS array
+        if (extras != null) {
+        	     	           
+        	// GET THE RECEIVED SMS ARRAY
             Object[] smsExtra = (Object[]) extras.get(SMS_EXTRA_NAME);
             
-            for ( int i = 0; i < smsExtra.length; ++i )
-            {
-            	// Get message
+            for (int i = 0; i < smsExtra.length; ++i) {
+            	
+            	// GET THE MESSAGE
             	SmsMessage sms = SmsMessage.createFromPdu((byte[])smsExtra[i]);
             	
-            	// Parse message data
+            	// PARSE THE MESSAGE BODY
             	String body = sms.getMessageBody().toString();
             	String address = sms.getOriginatingAddress();
             	long time = System.currentTimeMillis();
             	
-        	    // Get coordinates and create message           	           	       	
+        	    // GET COORDINATES AND SEND A MESSAGE
+            	gps.getLocation();
+            	
     			latitude = String.valueOf(Math.round(FIVE_DIGIT * gps.getLatitude()) / FIVE_DIGIT);
     			longitude = String.valueOf(Math.round(FIVE_DIGIT * gps.getLongitude()) / FIVE_DIGIT);
     			location = "Tag_ID:" + tagID + ":Location:" + latitude + "," + longitude;
     			googleString = GOOGLE_STRING + latitude + "," + longitude + "(" + tagID + ")"; 			
     			
     			if (body.equals(SECRET_LOCATION_A + secretCode)) { 
-    				if (latitude.equals("0.0")) {
-    					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
+    				if (senderEnabled) {
+        				if (latitude.equals("0.0") | longitude.equals("0.0")) {
+        					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
+        				}
+        				else {
+        					SmsManager.getDefault().sendTextMessage(address, null, googleString, null, null);
+        				}
     				}
-    				else {
-    					SmsManager.getDefault().sendTextMessage(address, null, googleString, null, null);
-    				}
+
                     this.abortBroadcast(); 
     			}
     			else if (body.equals(SECRET_LOCATION_B + secretCode)) {
-    				if (latitude.equals("0.0")) {
-    					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
+    				if (senderEnabled) {
+        				if (latitude.equals("0.0") | longitude.equals("0.0")) {
+        					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
+        				}
+        				else {
+        					SmsManager.getDefault().sendTextMessage(address, null, location, null, null);
+        				}
     				}
-    				else {
-    					SmsManager.getDefault().sendTextMessage(address, null, googleString, null, null);
-    				}
-                    this.abortBroadcast(); 
-            	}
-    			else if (body.equals(SECRET_LOCATION_C + secretCode)) {
-    				if (latitude.equals("0.0")) {
-    					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
-    				}
-    				else {
-    					SmsManager.getDefault().sendTextMessage(address, null, location, null, null);
-    				}
-    				this.abortBroadcast();
-    			}
-    			else if (body.equals(SECRET_LOCATION_D + secretCode)) {
-    				gps.ResetGPS();
-    				gps.getLocation();
-    				latitude = String.valueOf(Math.round(FIVE_DIGIT * gps.getLatitude()) / FIVE_DIGIT);
-        			longitude = String.valueOf(Math.round(FIVE_DIGIT * gps.getLongitude()) / FIVE_DIGIT);
-        			
-    				if (latitude.equals("0.0") | longitude.equals("0.0")) {
-    					SmsManager.getDefault().sendTextMessage(address, null, NO_COORDS + tagID, null, null);
-    				}
-    				else {
-    					SmsManager.getDefault().sendTextMessage(address, null, location, null, null);
-    				}
+	
     				this.abortBroadcast();
     			}
     			else if (body.contains("Tag_ID:")) {
-    				// Add to DB
+    				// ADD TO DATABASE
     				MsgDatabaseHandler dbHandler = new MsgDatabaseHandler(context);
     				
-    				// Verify if the tag exist in the array
+    				// VERIFY IF THE TAG EXISTS IN THE ARRAY
     				String addressExists = VerifyTagExist(address);
     				
     				String[] splitBody = body.split(":");
@@ -159,7 +154,7 @@ public class SmsReceiver extends BroadcastReceiver {
     				String _time = String.valueOf(time);    			
     				String toastMsg = null;
     				
-    				// Check if address exist for naming purposes
+    				// CHECK IF THE ADDRESS EXISTS FOR NAMING PURPOSES
     				if (addressExists == null) {    					   					
     					dbHandler.Add_Message(new MessageData(tag, address, lat, lon, _time));
     					toastMsg = "Response Received: " + tag;
@@ -169,67 +164,73 @@ public class SmsReceiver extends BroadcastReceiver {
     					toastMsg = "Response Received: " + addressExists;
     				}
     				
+    				dbHandler.close();
+    				
     				Toast.makeText(context, toastMsg, Toast.LENGTH_LONG).show();
+    				
     				this.abortBroadcast();
     			}
     			else if (body.contains("Panic!")) {
     				
-    				// Override silent 
+    				// OVERRIDE THE SILENT FEATURE
     				AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     				int max = audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION);
     				audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
     				audio.setStreamVolume(AudioManager.STREAM_RING, max, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
     				
-    				//Define Notification Manager
+    				// DEFINE THE NOTIFICATION MANAGER
     				notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     				
-    				// Start timer
+    				// START A TIMER
         			mytimer = new Timer(true);
         			
-        			// Sound location
+        			// SOUND LOCATION ALARM
     				soundUri = Uri.parse(BEGIN_PATH + context.getPackageName() + FILE_PATH);
     				
-    				// Display tagID for emergency
+    				// DISPLAY TAG ID FOR EMERGENCY
     				String[] splitBody = body.split("\n");
     				String fieldTag = splitBody[1];
     				String[] splitTag = fieldTag.split(":");
     				
     				emergencyTag = splitTag[1].trim();
     				
-    				// Timer for notifications
+    				// TIMER FOR NOTIFICATIONS
                     mytask = new TimerTask() {
                         public void run() {
-            				// Run notification on timer
+            				// RUN NOTIFICATION ON TIMER
             				NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
             				        .setSmallIcon(R.drawable.emergency)
             				        .setContentTitle(PANIC_TXT)
             				        .setContentText(emergencyTag + UNDER_DURRESS)
             				        .setSound(soundUri); //This sets the sound to play
 
-            				//Display notification
+            				// DISPLAY THE NOTIFICATION
             				notificationManager.notify(0, mBuilder.build());
                         }
                     };                    
-                    // Start timer after 5 seconds and send new SMS every 60 seconds
+                    // START TIMER AFTER 5 SECONDS
                     mytimer.schedule(mytask, FIVE_SECONDS);
     			}
             }            
         } 
-	    // Clear cache on receive
+        
+	    // CLEAR THE CACHE ON RECEIVING A MESSAGE
         try {
-            SenderMain.trimCache(context);
+            MyUpdateReceiver.trimCache(context);
         } catch (Exception e) {
             e.printStackTrace();
         }
 	}
 	
 	/**
-	 * Function to check if the tag exist in the array for toast display
-	 * */
+	 * METHOD TO VERIFY IF A TAG EXISTS IN THE DATABASE
+	 * @param address
+	 * @return
+	 */
 	public String VerifyTagExist(String address) {
 		String found = null;
 		
-		// Get data from DB and check if address exists
+		// GET DATA FROM THE DATABASE AND CHECK IF THE ADDRESS EXISTS
     	TagDatabaseHandler mytdb = new TagDatabaseHandler(context);
     	ArrayList<MyTags> mytag_array_from_db = mytdb.Get_Tags();
 
@@ -240,7 +241,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			mobile = mytag_array_from_db.get(ix).getMyTagPhoneNumber();
 			tag = mytag_array_from_db.get(ix).getMyTag();
 			
-			// If exists, use the name from our tag DB, not the sender name
+			// IF EXISTS, USE THE NAME FROM OUR TAG DB, NOT THE SENDER NAME
 			if (address.equals(mobile)) {
 				found = tag;
 			}

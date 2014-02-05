@@ -1,9 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_settings"/>
+        android:id="@+id/options"
+    	android:icon="@drawable/settings"
+    	android:showAsAction="ifRoom"
+    	android:title="Options">
+    	
+	    <menu>
+	        <item 
+	            android:id="@+id/rateApp"
+	            android:title="Rate This App"/>
+	        <item
+	            android:id="@+id/donateApp"
+	            android:title="Donate" />
+	        
+	        <item
+	            android:id="@+id/panicApp"
+	            android:title="Panic Numbers" />
+	        
+	        <item
+	            android:id="@+id/tagsApp"
+	            android:title="My Tags" />
+	        
+	        <item
+	            android:id="@+id/action_settings"
+	            android:title="Settings" />
+	        
+	     	<item
+	            android:id="@+id/exitApp"
+	            android:title="Exit" />
+	    </menu>
+	    
+	</item>
+	
+    <item 
+        android:id="@+id/quit"
+        android:icon="@drawable/quit"
+        android:showAsAction="ifRoom"
+        android:title="Quit" >
+    </item>
 
 </menu>

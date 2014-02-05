@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/blk_holder"
+	android:orientation="vertical" >
+	
+	<RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingBottom="10dp" >
+	  
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical" >
+	
+	        <TextView
+	            android:id="@+id/tag_name_txt"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textColor="@color/White"
+	            android:text="PanicID: Tom"
+	            android:focusable="false"
+	            android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	        <TextView
+	            android:id="@+id/tag_phone_txt"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textColor="@color/White"
+	            android:text="7478488888"
+	            android:focusable="false"
+	            android:textAppearance="?android:attr/textAppearanceSmall" />
+	        
+	        <TextView
+	            android:id="@+id/tag_email_txt"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:textColor="@color/White"
+	            android:text="bill@gmail.com"
+	            android:focusable="false"
+	            android:textAppearance="?android:attr/textAppearanceSmall" />
+	
+	    </LinearLayout>
+
+        <ToggleButton
+            android:id="@+id/expandBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/selector_checkbox"
+            android:textOn=""
+            android:textOff=""
+            android:focusable="false" />
+	        	    
+	</RelativeLayout>
+	
+	<LinearLayout 
+	    android:id="@+id/expandable"
+	    android:layout_marginBottom="-50dip"
+	    android:visibility="gone"
+	    android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+        
+	   	<View 
+			android:layout_width="fill_parent"
+	    	android:layout_height="1dip"
+	    	android:background="@color/Black" />
+            
+		<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" >
+		            
+		    <ToggleButton
+		        android:id="@+id/emailToggle"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+		        android:disabledAlpha="?android:attr/disabledAlpha"
+		        android:background="@drawable/selector_btn_toggle"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:focusable="false"
+                android:focusableInTouchMode="false"
+		        android:textOn="Email"
+		        android:textOff="Email"
+		        android:layout_weight="0.5" />
+		    		
+		    <ToggleButton
+		        android:id="@+id/phoneToggle"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+		        android:disabledAlpha="?android:attr/disabledAlpha"
+		        android:background="@drawable/selector_btn_toggle"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:focusable="false"
+                android:focusableInTouchMode="false"
+		        android:textOn="Phone"
+		        android:textOff="Phone"
+		        android:layout_weight="0.5" />
+    		    
+		   <Button
+		        android:id="@+id/btnUpdate"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+		        android:background="@drawable/blk_holder"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:focusable="false"
+                android:focusableInTouchMode="false"
+		        android:text="Edit"
+		        android:layout_weight="0.5" />
+		   		   
+		    <Button
+		        android:id="@+id/btnDelete"
+		        android:layout_width="fill_parent"
+		        android:layout_height="fill_parent"
+		        android:layout_weight="0.5"
+		        android:text="Delete"
+		        android:focusable="false"
+                android:focusableInTouchMode="false"
+		        android:background="@drawable/blk_holder"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		
+		</LinearLayout>
+		
+	</LinearLayout>
+
+</LinearLayout>
+
