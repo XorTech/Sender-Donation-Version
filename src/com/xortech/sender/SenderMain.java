@@ -38,9 +38,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -82,6 +83,12 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		mapType = preferences.getString("mapType", GMAPS);
+		
+		// CHECK FOR "DON'T KEEP ACTIVITIES" IN DEVELOPER OPTIONS
+		boolean checkDeveloper = isAlwaysFinishActivitiesOptionEnabled();
+		if (checkDeveloper) {
+			showDeveloperOptionsScreen();
+		}
 		
 		/*
 		 * IF GOOGLE MAPS IS SELECTED AS THE DEFAULT, THEN CHECK TO
@@ -390,5 +397,44 @@ public class SenderMain extends FragmentActivity implements ActionBar.TabListene
 	                finish();
 	            }
 	        }).create().show();
+	}
+	
+	/**
+	 * METHOD TO CHECK IF "DON'T KEEP ACTIVITIES" IS CHECKED IN DEVELOPER OPTIONS
+	 * @return
+	 */
+	public boolean isAlwaysFinishActivitiesOptionEnabled() {
+		int alwaysFinishActivitiesInt = 0;
+	    if (Build.VERSION.SDK_INT >= 17) {
+	    	alwaysFinishActivitiesInt = Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.Global.ALWAYS_FINISH_ACTIVITIES, 0);
+	    } else {
+	        alwaysFinishActivitiesInt = Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.System.ALWAYS_FINISH_ACTIVITIES, 0);
+	    }
+
+	    if (alwaysFinishActivitiesInt == 1) {
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
+	
+	/**
+	 * METHOD TO ASK USER TO DISABLE "DON'T KEEP ACTIVITIES" IN DEVELOPER OPTIONS
+	 */
+	public void showDeveloperOptionsScreen(){
+		
+	    new AlertDialog.Builder(this)
+        .setTitle("Developer Options Detected!")
+        .setMessage("In order for Sender to work properly, please uncheck the \"Don't keep activities\" option.")
+        .setNegativeButton(android.R.string.no, null)
+        .setPositiveButton(android.R.string.yes, new OnClickListener() {
+
+            public void onClick(DialogInterface arg0, int arg1) {
+        	    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+        	    intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        	    startActivity(intent);
+        	    finish();
+            }
+        }).create().show();
 	}
 }
