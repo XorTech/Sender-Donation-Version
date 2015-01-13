@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 public class SmsReceiver extends BroadcastReceiver {	
 	
-	private static final String SMS_EXTRA_NAME = "pdus";   
+    private static final String SMS_EXTRA_NAME = "pdus";   
     private static final String SECRET_LOCATION_A = "*1*";
     private static final String SECRET_LOCATION_B = "*3*";  
     private static final String GOOGLE_STRING = "http://maps.google.com/maps?q=";
